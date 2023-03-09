@@ -1,4 +1,6 @@
 requests>=2.25.0
 urllib3>=1.26.0
 beautifulsoup4>=4.9.0
+webdriver-manager>=3.0.0
+selenium>=4.8.0
 six

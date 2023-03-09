@@ -1,20 +1,14 @@
 from bs4 import BeautifulSoup
 import requests
 from requests.exceptions import RequestException
-
-from selenium import webdriver
-from selenium.webdriver.firefox.service import Service as FirefoxService
-from webdriver_manager.firefox import GeckoDriverManager
-
 from urllib.parse import urlencode
+from .browser import CraigslistBrowser
 
 ALL_SITES_URL = 'http://www.craigslist.org/about/sites'
 SITE_URL = 'http://%s.craigslist.org'
 USER_AGENT = 'Mozilla/5.0'
 
-install = GeckoDriverManager().install()
-driver = webdriver.Firefox(service=FirefoxService(install))
-
+browser = CraigslistBrowser()
 
 def bs(content):
     return BeautifulSoup(content, 'html.parser')
@@ -43,13 +37,13 @@ def requests_get(*args, **kwargs):
     else:
         url = args[0]
     try:
-        driver.get(url)
-        return driver
+        browser.visit(url)
+        return browser.show_source()
     except RequestException as exc:
         if logger:
             logger.warning('Request failed (%s). Retrying ...', exc)
-        driver.get(url)
-        return driver
+        browser.visit(url)
+        return browser.show_source()
 
 
 def get_all_sites():
@@ -78,9 +72,8 @@ def get_all_areas(site):
 
 def get_list_filters(url):
     list_filters = {}
-    response = requests_get(url)
-    print(response.page_source)
-    soup = bs(response.page_source)
+    page_source = requests_get(url)
+    soup = bs(page_source)
     for list_filter in soup.find_all('div', class_='search-attribute'):
         filter_key = list_filter.attrs['data-attr']
         filter_labels = list_filter.find_all('label')

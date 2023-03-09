@@ -6,6 +6,6 @@ cl_h = CraigslistHousing(site='sfbay', area='sfc', category='roo',
 
 # You can get an approximate amount of results with the following call:
 
-
-for result in cl_h.get_results(sort_by='newest', geotagged=True):
-    print(result)
+if __name__ == "__main__":
+    for result in cl_h.get_results(sort_by='newest', geotagged=True):
+        print(result)
