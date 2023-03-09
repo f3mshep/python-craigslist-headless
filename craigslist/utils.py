@@ -2,9 +2,18 @@ from bs4 import BeautifulSoup
 import requests
 from requests.exceptions import RequestException
 
+from selenium import webdriver
+from selenium.webdriver.firefox.service import Service as FirefoxService
+from webdriver_manager.firefox import GeckoDriverManager
+
+from urllib.parse import urlencode
+
 ALL_SITES_URL = 'http://www.craigslist.org/about/sites'
 SITE_URL = 'http://%s.craigslist.org'
 USER_AGENT = 'Mozilla/5.0'
+
+install = GeckoDriverManager().install()
+driver = webdriver.Firefox(service=FirefoxService(install))
 
 
 def bs(content):
@@ -23,17 +32,24 @@ def requests_get(*args, **kwargs):
     Retries if a RequestException is raised (could be a connection error or
     a timeout).
     """
-
     logger = kwargs.pop('logger', None)
     # Set default User-Agent header if not defined.
-    kwargs.setdefault('headers', {}).setdefault('User-Agent', USER_AGENT)
-
+    # kwargs.setdefault('headers', {}).setdefault('User-Agent', USER_AGENT)
+    print(kwargs)
+    if kwargs:
+        query_string = urlencode(kwargs["params"])
+        print(query_string)
+        url = args[0] +  "?" + query_string
+    else:
+        url = args[0]
     try:
-        return requests.get(*args, **kwargs)
+        driver.get(url)
+        return driver
     except RequestException as exc:
         if logger:
             logger.warning('Request failed (%s). Retrying ...', exc)
-        return requests.get(*args, **kwargs)
+        driver.get(url)
+        return driver
 
 
 def get_all_sites():
@@ -63,7 +79,8 @@ def get_all_areas(site):
 def get_list_filters(url):
     list_filters = {}
     response = requests_get(url)
-    soup = bs(response.content)
+    print(response.page_source)
+    soup = bs(response.page_source)
     for list_filter in soup.find_all('div', class_='search-attribute'):
         filter_key = list_filter.attrs['data-attr']
         filter_labels = list_filter.find_all('label')

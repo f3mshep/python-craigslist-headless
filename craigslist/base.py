@@ -128,7 +128,8 @@ class CraigslistBase(object):
         base_url = self.url_templates['base']
         response = utils.requests_get(base_url % {'site': self.site},
                                       logger=self.logger)
-        soup = utils.bs(response.content)
+        print(response)
+        soup = utils.bs(response.page_source)
         sublinks = soup.find('ul', {'class': 'sublinks'})
         return sublinks and sublinks.find('a', text=area) is not None
 
@@ -179,11 +180,11 @@ class CraigslistBase(object):
             self.filters['s'] = start
             response = utils.requests_get(self.url, params=self.filters,
                                           logger=self.logger)
-            self.logger.info('GET %s', response.url)
-            self.logger.info('Response code: %s', response.status_code)
-            response.raise_for_status()  # Something failed?
-
-            soup = utils.bs(response.content)
+            #self.logger.info('GET %s', response.url)
+            #self.logger.info('Response code: %s', response.status_code)
+            #response.raise_for_status()  # Something failed?
+            print(response.page)
+            soup = utils.bs(response.page_source)
             if not total:
                 total = self.get_results_approx_count(soup=soup)
 
@@ -369,7 +370,7 @@ class CraigslistBase(object):
         self.logger.info('Response code: %s', response.status_code)
 
         if response.ok:
-            return utils.bs(response.content)
+            return utils.bs(response.page_source)
 
         self.logger.warning("GET %s returned not OK response code: %s "
                             "(skipping)", url, response.status_code)
@@ -417,7 +418,7 @@ class CraigslistBase(object):
             "category": cls.default_category,
         }
         response = utils.requests_get(url)
-        soup = utils.bs(response.content)
+        soup = utils.bs(response.page_source)
 
         cat_html = soup.find_all("input", {"class": "catcheck multi_checkbox"})
         cat_ids = [html.get('data-abb') for html in cat_html]
