@@ -177,17 +177,14 @@ class CraigslistBase(object):
         while True:
             self.filters['s'] = start
             page_source = utils.requests_get(self.url, params=self.filters,
-                                          logger=self.logger)
-            #self.logger.info('GET %s', response.url)
-            #self.logger.info('Response code: %s', response.status_code)
-            #response.raise_for_status()  # Something failed?
-            print(page_source)
+                                          logger=self.logger, wait=True)
+
             soup = utils.bs(page_source)
             if not total:
                 total = self.get_results_approx_count(soup=soup)
 
-            rows = soup.find('ul', {'class': 'rows'})
-            for row in rows.find_all('li', {'class': 'result-row'},
+            rows = soup.find('ol')
+            for row in rows.find_all('li', {'class': 'cl-search-result'},
                                      recursive=False):
                 if limit is not None and results_yielded >= limit:
                     break

@@ -10,6 +10,11 @@ USER_AGENT = 'Mozilla/5.0'
 
 browser = CraigslistBrowser()
 
+
+def quit_browser():
+    browser.quit()
+
+
 def bs(content):
     return BeautifulSoup(content, 'html.parser')
 
@@ -27,23 +32,29 @@ def requests_get(*args, **kwargs):
     a timeout).
     """
     logger = kwargs.pop('logger', None)
+    wait = kwargs.pop('wait', False)
     # Set default User-Agent header if not defined.
     # kwargs.setdefault('headers', {}).setdefault('User-Agent', USER_AGENT)
     print(kwargs)
     if kwargs:
         query_string = urlencode(kwargs["params"])
         print(query_string)
-        url = args[0] +  "?" + query_string
+        url = args[0] + "?" + query_string
     else:
         url = args[0]
     try:
         browser.visit(url)
-        return browser.show_source()
+        page_source = browser.show_source(wait)
+        # if "unrecoverableError" in str(page_source):
+        #     logger.warning("We have been found out?")
+            # quit_browser()
+            # raise Exception("We've been had!")
+        return page_source
     except RequestException as exc:
         if logger:
             logger.warning('Request failed (%s). Retrying ...', exc)
         browser.visit(url)
-        return browser.show_source()
+        return browser.show_source(wait)
 
 
 def get_all_sites():
