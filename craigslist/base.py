@@ -184,8 +184,7 @@ class CraigslistBase(object):
                 total = self.get_results_approx_count(soup=soup)
 
             rows = soup.find('ol')
-            for row in rows.find_all('li', {'class': 'cl-search-result'},
-                                     recursive=False):
+            for row in rows.find_all('li', recursive=False):
                 if limit is not None and results_yielded >= limit:
                     break
                 self.logger.debug('Processing %s of %s results ...',
