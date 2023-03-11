@@ -15,7 +15,7 @@ with open('README.rst', 'r') as r:
     readme = r.read()
 
 setup(
-    name='python-craigslist-headless',
+    name='python-craigslist_headless',
     packages=['craigslist_headless'],
     version=version,
     description=('Simple Craigslist wrapper.'),
