@@ -184,7 +184,7 @@ class CraigslistBase(object):
                 total = self.get_results_approx_count(soup=soup)
 
             rows = soup.find('ol')
-            for row in rows.find_all('li', recursive=False):
+            for row in rows.find_all('li', {'class': 'cl-search-result'}, recursive=False):
                 if limit is not None and results_yielded >= limit:
                     break
                 self.logger.debug('Processing %s of %s results ...',
@@ -202,6 +202,9 @@ class CraigslistBase(object):
             start = total_so_far
 
     def process_row(self, row, geotagged=False, include_details=False):
+        if row.find('div', {'class': 'gallery-card spacer'}) is not None:
+            self.logger.debug('found a spacer, skipping')
+            return
         id = row.attrs['data-pid']
         repost_of = row.attrs.get('data-repost-of')
 
@@ -228,7 +231,7 @@ class CraigslistBase(object):
                   'datetime': None,
                   'last_updated': None,
                   'price': price.text if price else None,
-                  'where': location,
+                  'where': location if location else None,
                   'has_image': has_pic,
                   'geotag': None,
                   # In very few cases, a posting will be included in the result
