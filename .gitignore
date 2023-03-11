@@ -12,3 +12,4 @@ develop-eggs
 pip-log.txt
 .DS_Store
 .venv
+venv

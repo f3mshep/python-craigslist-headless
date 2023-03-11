@@ -205,22 +205,19 @@ class CraigslistBase(object):
         id = row.attrs['data-pid']
         repost_of = row.attrs.get('data-repost-of')
 
-        link = row.find('a', {'class': 'hdrlnk'})
-        name = link.text
+        link = row.find('a', {'class': 'main'})
+        name = row.attrs.get('title')
         url = urljoin(self.url, link.attrs['href'])
+        price = row.find('span', {'class': 'priceinfo'})
 
-        time = row.find('time')
-        if time:
-            datetime = time.attrs['datetime']
-        else:
-            pl = row.find('span', {'class': 'pl'})
-            datetime = pl.text.split(':')[0].strip() if pl else None
-        price = row.find('span', {'class': 'result-price'})
-        where = row.find('span', {'class': 'result-hood'})
-        if where:
-            where = where.text.strip()[1:-1]  # remove ()
-        tags_span = row.find('span', {'class': 'result-tags'})
-        tags = tags_span.text if tags_span else ''
+        has_pic = row.find('div', {'class': 'dots'}) is not None
+
+        meta = row.find('div', {'class': 'meta'})
+        if meta is not None:
+            meta_text = meta.text
+            metas = meta_text.split('·')
+            relative_time = metas[0]
+            location = metas[-1]
 
         result = {'id': id,
                   'repost_of': repost_of,
@@ -228,11 +225,11 @@ class CraigslistBase(object):
                   'url': url,
                   # NOTE: Keeping 'datetime' for backwards
                   # compatibility, use 'last_updated' instead.
-                  'datetime': datetime,
-                  'last_updated': datetime,
+                  'datetime': None,
+                  'last_updated': None,
                   'price': price.text if price else None,
-                  'where': where,
-                  'has_image': 'pic' in tags,
+                  'where': location,
+                  'has_image': has_pic,
                   'geotag': None,
                   # In very few cases, a posting will be included in the result
                   # list but it has already been deleted (or it has been

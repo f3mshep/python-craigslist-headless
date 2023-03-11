@@ -14,21 +14,15 @@ with open('REQUIREMENTS.txt', 'r') as r:
 with open('README.rst', 'r') as r:
     readme = r.read()
 
-download_url = (
-    'https://github.com/juliomalegria/python-craigslist/tarball/%s'
-)
-
-
 setup(
-    name='python-craigslist',
-    packages=['craigslist'],
+    name='python-craigslist-headless',
+    packages=['craigslist-headless'],
     version=version,
     description=('Simple Craigslist wrapper.'),
     long_description=readme,
-    author='Julio M Alegria',
-    author_email='juliomalegria@gmail.com',
-    url='https://github.com/juliomalegria/python-craigslist',
-    download_url=download_url % version,
+    author='Julio M Alegria, Alexandra Wright',
+    author_email='superbiscuit@gmail.com',
+    url='https://github.com/f3mshep/python-craigslist-headless',
     install_requires=requires,
     license='MIT-Zero'
 )
