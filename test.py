@@ -8,3 +8,4 @@ if __name__ == "__main__":
     results = cl_h.get_results(sort_by='newest', geotagged=True, include_details=True)
     for result in results:
         print(result)
+    cl_h.quit()

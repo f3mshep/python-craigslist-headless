@@ -1,4 +1,7 @@
 import logging
+
+from .browser import CraigslistBrowser
+
 try:
     from Queue import Queue  # PY2
 except ImportError:
@@ -53,6 +56,8 @@ class CraigslistBase(object):
 
     def __init__(self, site=None, area=None, category=None, filters=None,
                  log_level=logging.WARNING):
+        self.browser = CraigslistBrowser()
+
         # Logging
         self.set_logger(log_level, init=True)
 
@@ -76,6 +81,9 @@ class CraigslistBase(object):
                                    'category': self.category}
 
         self.filters = self.get_filters(filters)
+
+    def quit(self):
+        self.browser.quit()
 
     def get_filters(self, filters):
         """Parses filters passed by the user into GET parameters."""
@@ -126,7 +134,7 @@ class CraigslistBase(object):
 
     def is_valid_area(self, area):
         base_url = self.url_templates['base']
-        page_source = utils.requests_get(base_url % {'site': self.site},
+        page_source = utils.requests_get(self.browser, base_url % {'site': self.site},
                                       logger=self.logger)
         print(page_source)
         soup = utils.bs(page_source)
@@ -144,7 +152,7 @@ class CraigslistBase(object):
         """
 
         if soup is None:
-            page_source = utils.requests_get(self.url, params=self.filters,
+            page_source = utils.requests_get(self.browser, self.url, params=self.filters,
                                           logger=self.logger)
 
             soup = utils.bs(page_source)
@@ -176,7 +184,7 @@ class CraigslistBase(object):
 
         while True:
             self.filters['s'] = start
-            page_source = utils.requests_get(self.url, params=self.filters,
+            page_source = utils.requests_get(self.browser, self.url, params=self.filters,
                                           logger=self.logger, wait=True)
 
             soup = utils.bs(page_source)
@@ -359,7 +367,7 @@ class CraigslistBase(object):
                     break
 
     def fetch_content(self, url):
-        page_source = utils.requests_get(url, logger=self.logger)
+        page_source = utils.requests_get(self.browser, url, logger=self.logger)
 
 
         # if response.ok:
@@ -406,11 +414,12 @@ class CraigslistBase(object):
 
     @classmethod
     def show_categories(cls):
+        browser = CraigslistBrowser()
         url = cls.url_templates["no_area"] % {
             "site": cls.default_site,
             "category": cls.default_category,
         }
-        page_source = utils.requests_get(url)
+        page_source = utils.requests_get(browser, url)
         soup = utils.bs(page_source)
 
         cat_html = soup.find_all("input", {"class": "catcheck multi_checkbox"})
@@ -421,6 +430,7 @@ class CraigslistBase(object):
         print("%s categories:" % cls.__name__)
         for cat_name, cat_id in sorted(zip(cat_names, cat_ids)):
             print("* %s = %s" % (cat_id, cat_name))
+        browser.quit()
 
     @classmethod
     def show_filters(cls, category=None):

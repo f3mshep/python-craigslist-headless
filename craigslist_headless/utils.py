@@ -8,13 +8,6 @@ ALL_SITES_URL = 'http://www.craigslist.org/about/sites'
 SITE_URL = 'http://%s.craigslist.org'
 USER_AGENT = 'Mozilla/5.0'
 
-browser = CraigslistBrowser()
-
-
-def quit_browser():
-    browser.quit()
-
-
 def bs(content):
     return BeautifulSoup(content, 'html.parser')
 
@@ -26,7 +19,7 @@ def isiterable(var):
         return False
 
 
-def requests_get(*args, **kwargs):
+def requests_get(browser, *args, **kwargs):
     """
     Retries if a RequestException is raised (could be a connection error or
     a timeout).
@@ -82,8 +75,9 @@ def get_all_areas(site):
 
 
 def get_list_filters(url):
+    browser = CraigslistBrowser()
     list_filters = {}
-    page_source = requests_get(url)
+    page_source = requests_get(browser, url)
     soup = bs(page_source)
     for list_filter in soup.find_all('div', class_='search-attribute'):
         filter_key = list_filter.attrs['data-attr']
@@ -91,4 +85,5 @@ def get_list_filters(url):
         options = {opt.text.strip(): opt.find('input').get('value')
                    for opt in filter_labels}
         list_filters[filter_key] = {'url_key': filter_key, 'value': options}
+    browser.quit()
     return list_filters
