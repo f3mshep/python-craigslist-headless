@@ -45,7 +45,7 @@ Looking for a room in San Francisco?
 
 .. code:: python
 
-    from craigslist import CraigslistHousing
+    from craigslist_headless import CraigslistHousing
     cl_h = CraigslistHousing(site='sfbay', area='sfc', category='roo',
                              filters={'max_price': 1200, 'private_room': True})
 
@@ -74,7 +74,7 @@ Maybe a software engineering internship in Silicon Valley?
 
 .. code:: python
 
-    from craigslist import CraigslistJobs
+    from craigslist_headless import CraigslistJobs
     cl_j = CraigslistJobs(site='sfbay', area='sby', category='sof',
                           filters={'is_internship': True, 'employment_type': ['full-time', 'part-time']})
 
@@ -98,7 +98,7 @@ Events with free food in New York?
 
 .. code:: python
 
-    from craigslist import CraigslistEvents
+    from craigslist_headless import CraigslistEvents
     cl_e = CraigslistEvents(site='newyork', filters={'free': True, 'food': True})
 
     for result in cl_e.get_results(sort_by='newest', limit=5):
@@ -125,7 +125,7 @@ supported by a specific subclass, use the ``.show_filters()`` class-method:
 
 .. code:: python
 
-   >>> from craigslist import CraigslistJobs, CraigslistForSale
+   >>> from craigslist_headless import CraigslistJobs, CraigslistForSale
    >>> CraigslistJobs.show_filters()
 
    Base filters:
